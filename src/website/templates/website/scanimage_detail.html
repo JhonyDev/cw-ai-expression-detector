@@ -16,6 +16,8 @@
                     <img src="{{ object.image_url.url }}" class="img-responsive img-fluid">
                 </div>
                 <div class="card-body">
+                    <p class="mb-0 h1">Status</p>
+                    <p class="mb-0 card-title mb-0">{{ object.status }}</p>
                     <p class="mb-0 h1">Stress Level</p>
                     <p class="mb-0 card-title mb-0">{{ object.stress_level }}
                         {% if object.stress_level %}
