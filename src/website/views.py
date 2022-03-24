@@ -49,7 +49,7 @@ class HomeView(TemplateView):
             if x == 'Disgust':
                 stress = 52
             if x == 'Happy':
-                stress = 95
+                stress = 5
             if x == 'Sad':
                 stress = 65
             if x == 'Surprise':
