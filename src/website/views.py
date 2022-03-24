@@ -38,7 +38,9 @@ class HomeView(TemplateView):
                 Surprise - 74 - 86
                 Neutral - 15 - 29
                 '''
-            x = ai_utils.run(path)
+            x, new_address = ai_utils.run(path)
+            if new_address is not None:
+                address = new_address
             stress = 0
             if x == 'Fear':
                 stress = 90
