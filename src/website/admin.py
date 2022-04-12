@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import ScanImage
+from .models import ScanImage, Session
 
 
 class ImageAdmin(admin.ModelAdmin):
@@ -7,3 +7,4 @@ class ImageAdmin(admin.ModelAdmin):
 
 
 admin.site.register(ScanImage, ImageAdmin)
+admin.site.register(Session)

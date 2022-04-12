@@ -1,4 +1,5 @@
 {% extends 'core/base.html' %}
+{% csrf_token %}
 {% block base_links %}
     <style>
         body {
@@ -49,28 +50,82 @@
                         Webcam.attach('#my_camera');
                     </script>
                 </div>
-                <div class="card-body">
-
-                    <form>
-                        <input type="button" class="btn btn-success" value="Take Snapshot" onClick="take_snapshot()">
-                    </form>
+                <div class="card-body border-bottom">
+                    <h5 id="text_status" style="color: red; font-weight: bold">Start Session</h5>
                 </div>
 
+                <div class="card-body border-bottom">
+                    <button id="start" class="btn btn-dark my-2" onclick="startClicked()" type="submit"><i
+                            class="fa fa-camera"></i> Start
+                        Session
+                    </button>
+                    <button id="stop" class="btn btn-danger my-2" onclick="stopClicked()" type="submit"><i
+                            class="fa fa-stop"></i> Stop Session
+                    </button>
+
+                </div>
+
+                <div class="card-body">
+                    <img id="scanned_image_id" class="img-responsive img-fluid">
+                    <p class="mb-0 h1 mt-3">Status</p>
+                    <p id="status_id" class="mb-0 card-title mb-0 font-size-60">THIS IS STATUS</p>
+                    <p class="mb-0 h1">Stress Level</p>
+                    <p id="stress_level" class="mb-0 card-title mb-0 font-size-60">THIS IS STRESS LEVEL</p>
+                </div>
             </div>
+
         </div>
     </div>
 {% endblock %}
 
 {% block base_external_scripts %}
     <script>
-        function take_snapshot() {
-            // take snapshot and get image data
-            Webcam.snap(function (data_uri) {
+        var seconds = 0;
+        var isSessionStarted = false;
+        var timer;
 
-                $.post('/', {'image': data_uri}, function (data) {
-                    window.location = '/image/'+parseInt(data)+'/';
-                })
-            });
+        function startTimer(duration, display, session_id) {
+            timer = setInterval(function () {
+                seconds += 1;
+                console.log("INSIDE TIMER " + seconds);
+                Webcam.snap(function (data_uri) {
+                    $.post('/website/image/', {'image': data_uri, 'session_pk': session_id}, function (data) {
+                        console.log(data);
+                        if (data['stress_level'] > 2)
+                            document.getElementById("scanned_image_id").src = data['image_url'];
+                        document.getElementById("stress_level").textContent = data['stress_level'] + "%";
+                        document.getElementById("status_id").textContent = data['status'];
+                    });
+                });
+            }, 400);
         }
+
+        function startClicked() {
+            if (!isSessionStarted) {
+                $.get('/website/start/session/', function (data) {
+                    var session_id = data.session_pk;
+                    $('#text_status').text("Session Started");
+                    var fiveMinutes = 60 * 5,
+                        display = document.querySelector('#time');
+                    startTimer(fiveMinutes, display, session_id);
+                    isSessionStarted = true;
+                });
+            }
+        }
+
+        function stopClicked() {
+            if (isSessionStarted) {
+                $('#text_status').text("Session Stopped");
+                clearInterval(timer);
+                isSessionStarted = false;
+                var delayInMilliseconds = 1000; //1 second
+
+                setTimeout(function () {
+                    window.location = "/website/";
+                }, delayInMilliseconds);
+
+            }
+        }
+
     </script>
 {% endblock %}
