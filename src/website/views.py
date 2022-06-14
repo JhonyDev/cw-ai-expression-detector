@@ -79,6 +79,20 @@ class ImageListView(ListView):
     def get_queryset(self):
         return ScanImage.objects.filter(session=self.kwargs['pk'])
 
+    def get_context_data(self, **kwargs):
+        context = super(ImageListView, self).get_context_data(**kwargs)
+        images = context.get('object_list')
+        status_list = []
+        stress_list = []
+        for image in images:
+            if image.status == 'No Face Detected':
+                continue
+            status_list.append(image.status)
+            stress_list.append(image.stress_level)
+        context['status'] = max(set(status_list), key=status_list.count)
+        context['stress'] = max(set(stress_list), key=stress_list.count)
+        return context
+
 
 class ImageDetailView(DetailView):
     model = ScanImage
